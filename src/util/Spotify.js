@@ -1,7 +1,7 @@
 const clientId = "161dbbef1eca4b89aa4cdd862793ab8b";
 //const corsCompliant = "https://cors-anywhere.herokuapp.com/";
 const baseURL = "https://api.spotify.com/v1";
-const redirectUri = "http://jammming-joe.surge.sh";
+const redirectUri = "http://localhost:3000/"; //http://jammming-joe.surge.sh
 let accessToken;
 let ttl;
 let trackArray=[];
@@ -55,11 +55,12 @@ const Spotify = {
   },
 
   savePlaylist(playlistName, trackArrayUris) {
-    if(!playlistName || !trackArrayUris) {
-      return
-    } else {
+    if(!playlistName || !trackArrayUris.length) {
+      return;
+    }
+    const accessToken=Spotify.getAccessToken();
     let userId;
-    let url=`me`; //${baseURL}/
+    let url='${baseURL}/me';
     return fetch(url, //making request to reutrn Spotify username
     {
       headers: {Authorization: `Bearer ${accessToken}`}
@@ -70,16 +71,14 @@ const Spotify = {
       url=`${baseURL}/users/${userId}/playlists`;
       let body={name: playlistName};
       let thePost={headers: {Authorization: `Bearer ${accessToken}`}, method:"POST", body: JSON.stringify(body)};
-      return fetch(url, thePost).then(response => response.json()).then(jsonResponse =>
-      jsonResponse.id).then(playlistId => {
-        console.log("Spotify.playlistid: " + playlistId);
+      return fetch(url, thePost).then(response => response.json()).then(jsonResponse => {
+        const playlistId=jsonResponse.id;
         url=`${baseURL}/users/${userId}/playlists/${playlistId}/tracks`;
         body={uris: trackArrayUris};
         thePost={headers: {Authorization: `Bearer ${accessToken}`}, method: "POST", body: JSON.stringify(body)};
-        return fetch(url, thePost).then(response => console.log("Spotify said: " + response));
+        return fetch(url, thePost);
       });
     });
-  }
   }
 }
 
