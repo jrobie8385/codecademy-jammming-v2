@@ -43,11 +43,12 @@ updatePlaylistName(name) {
 
 savePlaylist() {
   const trackURIs = this.state.playlistTracks.map(track => track.uri);
-  Spotify.savePlaylist(this.state.playlistName, trackURIs);
-  this.setState({
-    playlistTracks: []
-  });
-  this.updatePlaylistName("New playlist");
+  Spotify.savePlaylist(this.state.playlistName, trackURIs).then(() => {
+    this.setState({
+      playlistTracks: []
+    });
+    this.updatePlaylistName("New playlist");
+  })
 } //https://surge.sh/
 
 search(searchTerm) {

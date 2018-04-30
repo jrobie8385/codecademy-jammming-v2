@@ -9,7 +9,7 @@ let trackArray=[];
 const Spotify = {
   getAccessToken() {
     if(accessToken) { //check if user's access token is already set.
-      return new Promise(resolve => resolve(accessToken));
+      return accessToken;
       }
     else {
       let temp=window.location.href.match(/access_token=([^&]*)/); //matches 0 or more of any character except "&"
@@ -59,24 +59,27 @@ const Spotify = {
       return;
     }
     const accessToken=Spotify.getAccessToken();
+    const headers = {Authorization:`Bearer ${accessToken}`};
     let userId;
-    let url='${baseURL}/me';
-    return fetch(url, //making request to reutrn Spotify username
+    return fetch('${baseURL}/me', //making request to reutrn Spotify username
     {
-      headers: {Authorization: `Bearer ${accessToken}`}
+      headers: headers
     }).then(response =>
       response.json()
     ).then(jsonResponse => {
       userId=jsonResponse.id;
-      url=`${baseURL}/users/${userId}/playlists`;
-      let body={name: playlistName};
-      let thePost={headers: {Authorization: `Bearer ${accessToken}`}, method:"POST", body: JSON.stringify(body)};
-      return fetch(url, thePost).then(response => response.json()).then(jsonResponse => {
+      return fetch(`${baseURL}/users/${userId}/playlists`, {
+        headers: headers,
+        method: "POST",
+        body: JSON.stringify({name: playlistName})
+      }).then(response => response.json()
+    ).then(jsonResponse => {
         const playlistId=jsonResponse.id;
-        url=`${baseURL}/users/${userId}/playlists/${playlistId}/tracks`;
-        body={uris: trackArrayUris};
-        thePost={headers: {Authorization: `Bearer ${accessToken}`}, method: "POST", body: JSON.stringify(body)};
-        return fetch(url, thePost);
+        return fetch(`${baseURL}/users/${userId}/playlists/${playlistId}/tracks`, {
+          headers: headers,
+          method: "POST",
+          body: JSON.stringify({uris: trackArrayUris})
+        });
       });
     });
   }
